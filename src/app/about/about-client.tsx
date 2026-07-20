@@ -6,8 +6,8 @@ import { Award, Briefcase, Globe, Users, Target, Rocket, Heart, Trophy, MapPin, 
 import { Button } from '@/components/ui/button';
 
 const milestones = [
-  { year: "2019", title: "The Inception", desc: "Growfy was founded with a vision to redefine digital marketing." },
-  { year: "2020", title: "First Enterprise Client", desc: "Secured our first Fortune 500 partner, scaling our operations." },
+  { year: "2020", title: "The Inception", desc: "Growfy was founded with a vision to redefine digital marketing." },
+  { year: "2020", title: "First Client Onboarded", desc: "Partnered with a neighborhood café to modernize its marketing through digital branding, online presence, and customer engagement—proving the impact of digital-first growth." },
   { year: "2021", title: "Agency Growth", desc: "Expanded the team to 50+ creatives and engineers." },
   { year: "2022", title: "100+ Projects Delivered", desc: "Crossed a major milestone in delivering high-converting ecosystems." },
   { year: "2023", title: "Global Expansion", desc: "Opened offices in London and Dubai. International client base." },
@@ -23,7 +23,7 @@ const values = [
 ];
 
 const fallbackTeam = [
-  { name: "Sarah Jenkins", role: "CEO & Founder", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop" },
+  { name: "Nithish Kumar", role: "CEO & Founder", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop" },
   { name: "David Chen", role: "Chief Design Officer", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" },
   { name: "Elena Rostova", role: "VP of Engineering", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop" },
   { name: "Marcus Webb", role: "Head of Marketing", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop" }
@@ -37,7 +37,7 @@ function TimelineItem({ item, index }: { item: any, index: number }) {
     <div ref={ref} className="relative flex items-center justify-between md:justify-normal w-full mb-20">
       {/* Connector Line */}
       <div className="absolute left-[20px] md:left-1/2 top-0 bottom-[-80px] w-0.5 bg-border -translate-x-1/2 z-0">
-        <motion.div 
+        <motion.div
           className="absolute top-0 left-0 w-full bg-primary origin-top"
           initial={{ scaleY: 0 }}
           animate={{ scaleY: isInView ? 1 : 0 }}
@@ -48,9 +48,9 @@ function TimelineItem({ item, index }: { item: any, index: number }) {
 
       {/* Node */}
       <div className="absolute left-[20px] md:left-1/2 -translate-x-1/2 flex items-center justify-center z-10">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0, backgroundColor: "#fff" }}
-          animate={{ 
+          animate={{
             scale: isInView ? 1 : 0,
             backgroundColor: isInView ? "#a855f7" : "#fff",
             borderColor: isInView ? "#a855f7" : "#e5e7eb"
@@ -63,7 +63,7 @@ function TimelineItem({ item, index }: { item: any, index: number }) {
       </div>
 
       {/* Content */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
         animate={{ opacity: isInView ? 1 : 0, x: isInView ? 0 : (index % 2 === 0 ? -50 : 50) }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -87,14 +87,14 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
 
   return (
     <div className="min-h-screen text-foreground pb-0 overflow-hidden selection:bg-primary/20">
-      
+
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[70vh] flex items-center justify-center px-6 pt-32 overflow-hidden">
-        <motion.div 
+        <motion.div
           style={{ y: yHero, opacity: opacityHero }}
           className="relative z-10 max-w-4xl mx-auto text-center"
         >
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
@@ -102,7 +102,7 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
           >
             <Briefcase size={14} /> Inside Growfy
           </motion.div>
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -111,7 +111,7 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
             We Don&apos;t Just Build Brands. <br />
             <span className="text-primary">We Build Ecosystems.</span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -129,15 +129,15 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
             <h2 className="text-primary font-bold tracking-widest uppercase text-sm mb-2">Our Story</h2>
             <h3 className="text-4xl font-black mb-6">Born from a desire to do things differently.</h3>
             <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-              Growfy started in a small coffee shop in 2019 when our founders realized that traditional marketing agencies were failing to adapt to the modern web. We set out to create an agency that bridges the gap between stunning design, robust engineering, and AI-driven marketing.
+              Growfy started in a small coffee shop in 2020 when our founders realized that traditional marketing agencies were failing to adapt to the modern web. We set out to create an agency that bridges the gap between stunning design, robust engineering, and AI-driven marketing.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Today, we are a global team of over 50 experts, helping startups and Fortune 500s alike navigate the complexities of the digital world.
+              Today, we are a global team of over 20 experts, helping startups and Fortune companies to navigate the complexities of the digital world.
             </p>
           </div>
           <div className="relative">
-             <div className="absolute inset-0 bg-gradient-to-tr from-primary to-indigo-500 rounded-3xl blur-2xl opacity-20 -z-10" />
-             <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop" alt="Team collaborating" className="rounded-3xl shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-indigo-500 rounded-3xl blur-2xl opacity-20 -z-10" />
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop" alt="Team collaborating" className="rounded-3xl shadow-2xl" />
           </div>
         </div>
       </section>
@@ -160,7 +160,7 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
             </div>
             <h3 className="text-3xl font-black mb-4">Our Vision</h3>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              To be the global leader in AI-driven digital transformation, setting the standard for how brands interact with technology and their audiences.
+              To be the global leader in  digital transformation, setting the standard for how brands interact with technology and their audiences.
             </p>
           </div>
         </div>
@@ -173,10 +173,10 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
             <h2 className="text-primary font-bold tracking-widest uppercase text-sm mb-2">Philosophy</h2>
             <h3 className="text-4xl md:text-5xl font-black">Our Core Values</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((val, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -199,11 +199,11 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
       <section className="py-24 px-6 max-w-5xl mx-auto text-center">
         <Quote className="mx-auto w-16 h-16 text-primary/20 mb-8" />
         <h3 className="text-3xl md:text-4xl font-medium leading-snug mb-10 text-foreground">
-          &quot;We don&apos;t just write code or design graphics; we architect growth engines. Our true success is measured purely by the success of the businesses we partner with.&quot;
+          &quot;Growth isn't a service we offer—it's the foundation of everything we do. We combine strategy, creativity, technology, and marketing to help ambitious brands scale with purpose.&quot;
         </h3>
         <div className="flex flex-col items-center">
           <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" alt="Sarah Jenkins" className="w-20 h-20 rounded-full mb-4 object-cover" />
-          <h4 className="font-bold text-xl">Sarah Jenkins</h4>
+          <h4 className="font-bold text-xl">Nithish Kumar</h4>
           <p className="text-primary font-medium">CEO & Founder, Growfy</p>
         </div>
       </section>
@@ -220,7 +220,7 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {(initialTeam.length > 0 ? initialTeam : fallbackTeam).map((member, idx) => (
-            <motion.div 
+            <motion.div
               key={idx}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -230,9 +230,9 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
             >
               <div className="aspect-[3/4] rounded-3xl overflow-hidden mb-6 relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img 
+                <img
                   src={member.image || member.avatarUrl || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop"}
-                  alt={member.name} 
+                  alt={member.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
@@ -249,7 +249,7 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
           <h2 className="text-primary font-bold tracking-widest uppercase text-sm mb-2">The Journey</h2>
           <h3 className="text-4xl md:text-5xl font-black">Our Evolution</h3>
         </div>
-        
+
         <div className="relative pb-10">
           {milestones.map((item, idx) => (
             <TimelineItem key={idx} item={item} index={idx} />
@@ -268,7 +268,7 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
             We believe that a great environment fosters great work. Our culture is built on continuous learning, open communication, and celebrating our wins.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 aspect-[16/9] rounded-3xl overflow-hidden relative group">
             <img src={initialGallery[0]?.url || "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"} alt="Main Office" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />

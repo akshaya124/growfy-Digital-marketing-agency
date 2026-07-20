@@ -44,7 +44,7 @@ export function Navbar() {
                <Button variant="ghost">Login</Button>
              </Link>
              <Link href="/contact">
-               <Button variant="premium">Get Started</Button>
+               <Button variant="premium">Contact</Button>
              </Link>
           </div>
 
@@ -85,7 +85,7 @@ export function Navbar() {
                   <Button variant="ghost" className="w-full h-14 text-lg">Login</Button>
                 </Link>
                 <Link href="/contact" onClick={closeMenu} className="w-full">
-                  <Button variant="premium" className="w-full h-14 text-lg">Get Started</Button>
+                  <Button variant="premium" className="w-full h-14 text-lg">Contact</Button>
                 </Link>
               </div>
             </div>

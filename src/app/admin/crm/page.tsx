@@ -1,218 +1,223 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { 
-  Users, Building, Phone, Calendar, Search, Filter, 
-  Plus, MoreVertical, Flame, ArrowRight, MessageSquare
-} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Plus, Search, MoreVertical, Building2, Mail, Phone, Clock } from "lucide-react";
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
+} from "recharts";
 
-const stages = [
-  { id: "new", name: "New Leads", color: "bg-blue-500" },
-  { id: "contacted", name: "Contacted", color: "bg-orange-500" },
-  { id: "proposal", name: "Proposal Sent", color: "bg-purple-500" },
-  { id: "negotiation", name: "Negotiation", color: "bg-rose-500" },
-  { id: "won", name: "Closed Won", color: "bg-emerald-500" }
+const pipelineData = [
+  { name: 'Jan', leads: 45, converted: 12 },
+  { name: 'Feb', leads: 52, converted: 18 },
+  { name: 'Mar', leads: 38, converted: 15 },
+  { name: 'Apr', leads: 65, converted: 25 },
+  { name: 'May', leads: 74, converted: 32 },
+  { name: 'Jun', leads: 82, converted: 40 },
 ];
 
-const leads = [
-  { id: 1, name: "Sarah Jenkins", company: "Apex Tech", val: "$15,000", score: 92, stage: "proposal", date: "Oct 24", avatar: "SJ" },
-  { id: 2, name: "David Alaba", company: "Zenith E-Commerce", val: "$45,000", score: 88, stage: "negotiation", date: "Oct 22", avatar: "DA" },
-  { id: 3, name: "Michael Chang", company: "Nova Inc", val: "$8,500", score: 45, stage: "new", date: "Today", avatar: "MC" },
-  { id: 4, name: "Elena Rodriguez", company: "Pulse Marketing", val: "$12,000", score: 76, stage: "contacted", date: "Yesterday", avatar: "ER" },
-  { id: 5, name: "John Doe", company: "Doe Enterprises", val: "$120,000", score: 98, stage: "won", date: "Oct 15", avatar: "JD" },
+const dummyLeads = [
+  { id: 1, name: "Sarah Jenkins", company: "TechFlow Inc", value: "₹450,000", status: "Negotiation", lastContact: "2 hrs ago", email: "sarah@techflow.io" },
+  { id: 2, name: "Michael Chen", company: "Elevate Real Estate", value: "₹120,000", status: "New Lead", lastContact: "1 day ago", email: "m.chen@elevate.com" },
+  { id: 3, name: "Emma Watson", company: "Bloom Health", value: "₹850,000", status: "Closed Won", lastContact: "3 days ago", email: "emma@bloomhealth.org" },
+  { id: 4, name: "David Miller", company: "Apex Finance", value: "₹320,000", status: "Proposal Sent", lastContact: "5 hrs ago", email: "david@apex.co" },
+  { id: 5, name: "Jessica Lee", company: "Luxe Fashion", value: "₹180,000", status: "Meeting Scheduled", lastContact: "Just now", email: "jessica@luxefashion.com" },
 ];
 
-export default function CrmPage() {
-  const [activeTab, setActiveTab] = useState("Pipeline");
+const statusColors: Record<string, string> = {
+  "New Lead": "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  "Meeting Scheduled": "bg-purple-500/10 text-purple-500 border-purple-500/20",
+  "Proposal Sent": "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+  "Negotiation": "bg-orange-500/10 text-orange-500 border-orange-500/20",
+  "Closed Won": "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+};
+
+export default function CRMPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8">
       
-      {/* 1. CRM HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black mb-2">CRM Module</h1>
-          <p className="text-muted-foreground">Manage your sales pipeline, contacts, and lead scoring.</p>
+          <h1 className="text-3xl font-black">CRM Pipeline</h1>
+          <p className="text-muted-foreground mt-1">Manage leads, track conversions, and close deals.</p>
         </div>
-        <div className="flex gap-3 w-full md:w-auto">
-          <Button variant="premium" className="flex-1 md:flex-none rounded-lg flex items-center gap-2">
-            <Plus className="w-4 h-4" /> New Lead
-          </Button>
-        </div>
+        <Button variant="premium" onClick={() => setIsModalOpen(true)} className="gap-2 rounded-full px-6">
+          <Plus className="w-4 h-4" /> Add New Lead
+        </Button>
       </div>
 
-      {/* 2. SUB-NAVIGATION */}
-      <div className="flex items-center gap-2 border-b border-border mb-8 overflow-x-auto hide-scrollbar pb-2">
-        {["Pipeline", "Companies", "Contacts", "Activities", "Reports"].map((tab) => (
-          <button 
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
-              activeTab === tab ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:bg-muted'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* 3. FILTERS BAR */}
-      {activeTab === "Pipeline" && (
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" placeholder="Search leads or companies..." className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors" />
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" size="sm" className="bg-background rounded-lg flex items-center gap-2"><Filter className="w-4 h-4"/> Filters</Button>
-            <Button variant="outline" size="sm" className="bg-background rounded-lg flex items-center gap-2"><Building className="w-4 h-4"/> B2B Leads</Button>
-          </div>
-        </div>
-      )}
-
-      {/* 4. KANBAN PIPELINE VIEW */}
-      {activeTab === "Pipeline" && (
-        <div className="flex-1 overflow-x-auto hide-scrollbar pb-4">
-          <div className="flex gap-6 min-w-max h-full">
-            {stages.map(stage => {
-              const stageLeads = leads.filter(l => l.stage === stage.id);
-              
-              return (
-                <div key={stage.id} className="w-80 flex flex-col bg-muted/30 rounded-2xl border border-border/50 max-h-full">
-                  {/* Stage Header */}
-                  <div className="p-4 border-b border-border/50 flex items-center justify-between sticky top-0 bg-background/50 backdrop-blur-md rounded-t-2xl">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
-                      <h3 className="font-bold text-sm">{stage.name}</h3>
-                      <span className="bg-muted px-2 py-0.5 rounded-full text-xs font-bold text-muted-foreground">{stageLeads.length}</span>
-                    </div>
-                    <button className="text-muted-foreground hover:text-foreground"><MoreVertical className="w-4 h-4" /></button>
-                  </div>
-
-                  {/* Stage Cards */}
-                  <div className="p-3 overflow-y-auto custom-scrollbar flex-1 space-y-3">
-                    {stageLeads.map(lead => (
-                      <div key={lead.id} className="glass-card bg-background border border-border p-4 rounded-xl cursor-grab hover:border-primary/50 transition-colors shadow-sm group">
-                        
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                              {lead.avatar}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-sm leading-tight">{lead.name}</h4>
-                              <p className="text-xs text-muted-foreground">{lead.company}</p>
-                            </div>
-                          </div>
-                          {/* Lead Score */}
-                          <div className={`flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-md ${lead.score > 80 ? 'bg-orange-500/10 text-orange-500' : 'bg-muted text-muted-foreground'}`}>
-                            <Flame className={`w-3 h-3 ${lead.score > 80 ? 'fill-orange-500' : ''}`} /> {lead.score}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="font-black text-primary">{lead.val}</div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="w-3 h-3"/> {lead.date}</div>
-                        </div>
-
-                        <div className="flex items-center justify-between border-t border-border pt-3">
-                          <div className="flex gap-2">
-                            <button className="w-7 h-7 rounded-md bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center text-muted-foreground"><Phone className="w-3 h-3" /></button>
-                            <button className="w-7 h-7 rounded-md bg-muted hover:bg-primary hover:text-white transition-colors flex items-center justify-center text-muted-foreground"><MessageSquare className="w-3 h-3" /></button>
-                          </div>
-                          <button className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                            View <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Add Quick Lead */}
-                  <div className="p-3 border-t border-border/50 sticky bottom-0 bg-background/50 backdrop-blur-md rounded-b-2xl">
-                    <button className="w-full py-2 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors flex items-center justify-center gap-2">
-                      <Plus className="w-3 h-3" /> Quick Add
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
+      {/* METRICS & CHART */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 glass-card p-6 rounded-3xl border border-border">
+          <h3 className="font-bold mb-6">Lead Acquisition vs Conversion</h3>
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={pipelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorConverted" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
+                  itemStyle={{ color: '#fff' }}
+                />
+                <Area type="monotone" dataKey="leads" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorLeads)" />
+                <Area type="monotone" dataKey="converted" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorConverted)" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      )}
 
-      {/* 5. CONTACTS / CLIENTS DATA GRID VIEW */}
-      {activeTab === "Contacts" && (
-        <div className="flex-1 flex flex-col bg-background rounded-2xl border border-border overflow-hidden">
-          <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
-            <h2 className="font-bold">All Contacts (42)</h2>
-            <div className="flex gap-2">
-               <Button variant="outline" size="sm" className="h-8 text-xs bg-background">Export</Button>
+        <div className="space-y-6 flex flex-col justify-center">
+          <div className="glass-card p-6 rounded-3xl border border-border flex flex-col justify-between relative overflow-hidden h-full">
+            <div className="absolute top-0 right-0 p-6 opacity-10">
+              <Building2 className="w-24 h-24" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Total Pipeline Value</p>
+              <h2 className="text-5xl font-black text-primary">₹1.9M</h2>
+            </div>
+            <div className="space-y-4 mt-6">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Active Deals</span>
+                <span className="font-bold">24</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div className="bg-primary h-2 rounded-full" style={{ width: '65%' }}></div>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Win Rate</span>
+                <span className="font-bold text-emerald-500">65%</span>
+              </div>
             </div>
           </div>
-          <div className="overflow-auto flex-1">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted/50 sticky top-0 z-10 text-muted-foreground border-b border-border">
-                <tr>
-                  <th className="p-4 font-semibold w-12"><input type="checkbox" className="rounded border-border bg-background" /></th>
-                  <th className="p-4 font-semibold">Name</th>
-                  <th className="p-4 font-semibold">Company</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold">Last Activity</th>
-                  <th className="p-4 font-semibold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50">
-                {[
-                  { name: "Sarah Jenkins", role: "CEO", company: "Apex Tech", status: "Active Client", last: "Today, 10:30 AM", avatar: "SJ" },
-                  { name: "David Alaba", role: "Marketing Dir", company: "Zenith E-Commerce", status: "Negotiating", last: "Yesterday", avatar: "DA" },
-                  { name: "John Doe", role: "Founder", company: "Doe Enterprises", status: "Active Client", last: "Oct 24", avatar: "JD" },
-                  { name: "Elena Rodriguez", role: "CMO", company: "Pulse Marketing", status: "Cold Lead", last: "Oct 12", avatar: "ER" },
-                ].map((contact, i) => (
-                  <tr key={i} className="hover:bg-muted/30 transition-colors group">
-                    <td className="p-4"><input type="checkbox" className="rounded border-border bg-background" /></td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                          {contact.avatar}
-                        </div>
-                        <div>
-                          <p className="font-bold">{contact.name}</p>
-                          <p className="text-xs text-muted-foreground">{contact.role}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4 font-medium">{contact.company}</td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${contact.status === 'Active Client' ? 'bg-emerald-500/10 text-emerald-500' : contact.status === 'Negotiating' ? 'bg-orange-500/10 text-orange-500' : 'bg-muted text-muted-foreground'}`}>
-                        {contact.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-muted-foreground">{contact.last}</td>
-                    <td className="p-4 text-right">
-                      <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">View Profile</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        </div>
+      </div>
+
+      {/* DATA TABLE */}
+      <div className="glass-card rounded-3xl border border-border overflow-hidden">
+        <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="font-bold text-lg">Active Leads</h3>
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input 
+              type="text" 
+              placeholder="Search leads..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-background border border-border rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
+            />
           </div>
         </div>
-      )}
-
-      {/* PLACEHOLDER FOR OTHER TABS */}
-      {(activeTab !== "Pipeline" && activeTab !== "Contacts") && (
-        <div className="flex-1 glass-card border border-border rounded-2xl flex flex-col items-center justify-center text-center p-12">
-          <Users className="w-12 h-12 text-muted-foreground/30 mb-4" />
-          <h2 className="text-xl font-bold mb-2">{activeTab} Module</h2>
-          <p className="text-muted-foreground text-sm max-w-sm">
-            This section handles {activeTab.toLowerCase()}. 
-          </p>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-muted/30">
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Lead Details</th>
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Contact</th>
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Value</th>
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Last Activity</th>
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-muted-foreground text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {dummyLeads.map((lead) => (
+                <tr key={lead.id} className="hover:bg-muted/20 transition-colors group">
+                  <td className="px-6 py-4">
+                    <p className="font-bold">{lead.name}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Building2 className="w-3 h-3"/> {lead.company}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm">{lead.email}</p>
+                  </td>
+                  <td className="px-6 py-4 font-bold text-primary">
+                    {lead.value}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusColors[lead.status]}`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground flex items-center gap-2">
+                    <Clock className="w-4 h-4" /> {lead.lastContact}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-      
+      </div>
+
+      {/* ADD LEAD MODAL (DUMMY) */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-background border border-border shadow-2xl rounded-3xl p-8 z-50"
+            >
+              <h2 className="text-2xl font-black mb-6">Add New Lead</h2>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">Lead Name</label>
+                  <input type="text" className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="e.g. John Doe" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">Company</label>
+                  <input type="text" className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="e.g. Acme Corp" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">Deal Value (₹)</label>
+                    <input type="text" className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="e.g. 500000" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">Status</label>
+                    <select className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary">
+                      <option>New Lead</option>
+                      <option>Meeting Scheduled</option>
+                      <option>Proposal Sent</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-4 mt-8 pt-4">
+                  <Button variant="premium" className="w-full rounded-full h-12" onClick={() => setIsModalOpen(false)}>Save Lead</Button>
+                  <Button variant="outline" className="w-full rounded-full h-12" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

@@ -1,6 +1,19 @@
 import { db } from "@/lib/firebase/config";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { AboutClient } from "./about-client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us | Growfy",
+  description: "Learn more about Growfy's mission, our team, and how we build cinematic digital ecosystems to help your brand scale.",
+  openGraph: {
+    title: "About Us | Growfy",
+    description: "Learn more about Growfy's mission and team.",
+    url: "https://growfy.com/about",
+    siteName: "Growfy",
+    type: "website",
+  },
+};
 
 export const revalidate = 3600;
 

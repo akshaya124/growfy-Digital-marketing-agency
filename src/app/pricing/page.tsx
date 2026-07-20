@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, XCircle, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // PRICING DATA
@@ -35,43 +35,87 @@ const pricingData = {
 
 const faqs = [
   { q: "Are there any hidden fees?", a: "No, our pricing is fully transparent. The investment outlined in the proposal is exactly what you pay." },
-  { q: "Do you offer payment plans?", a: "Yes, for projects over $5,000 we typically structure payments across 3 milestones." },
+  { q: "Do you offer payment plans?", a: "Yes, for projects over ₹ 5,000 we typically structure payments across 3 milestones." },
   { q: "What happens after the support period ends?", a: "You can opt into a monthly maintenance retainer or handle it internally. We'll give you full access and training." }
 ];
 
+import { FadeInStagger, FadeInItem, TiltCard } from "@/components/ui/animations";
+import { useState } from "react";
+
 export default function PricingPage() {
+  const [formData, setFormData] = useState({ name: "", email: "", service: "Website & App Development", details: "" });
+  const [errors, setErrors] = useState({ name: "", email: "", details: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    let newErrors = { name: "", email: "", details: "" };
+    let hasError = false;
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+      hasError = true;
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+      hasError = true;
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+      hasError = true;
+    }
+    if (!formData.details.trim()) {
+      newErrors.details = "Project details are required";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    if (!hasError) {
+      setIsSubmitting(true);
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        setFormData({ name: "", email: "", service: "Website & App Development", details: "" });
+        setTimeout(() => setIsSuccess(false), 5000);
+      }, 1500);
+    }
+  };
+
   const formatPrice = (basePrice: number) => {
-    return `$${basePrice.toLocaleString()}`;
+    return `₹${basePrice.toLocaleString()}`;
   };
 
   const renderPricingCards = (packages: any[]) => (
-    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto perspective-1000">
       {packages.map((pkg, i) => (
-        <div key={i} className={`glass-card p-8 rounded-3xl relative ${pkg.popular ? 'border-primary shadow-[0_0_30px_rgba(168,85,247,0.15)] scale-105 z-10' : 'border-border'}`}>
-          {pkg.popular && <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold uppercase tracking-widest py-1.5 px-4 rounded-full">Professional</div>}
-          <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
-          <div className="text-4xl font-black mb-8">{formatPrice(pkg.basePrice)}</div>
-          <ul className="space-y-4 mb-8">
-            {pkg.features.map((f: string, j: number) => (
-              <li key={j} className="flex items-center gap-3">
-                <CheckCircle2 className="text-primary w-5 h-5 shrink-0" />
-                <span className="text-sm font-medium">{f}</span>
-              </li>
-            ))}
-          </ul>
-          <Button variant={pkg.popular ? "premium" : "outline"} className="w-full rounded-full">Select Plan</Button>
-        </div>
+        <TiltCard key={i} className="h-full">
+          <div className={`glass-card p-8 rounded-3xl relative h-full flex flex-col ${pkg.popular ? 'border-primary shadow-[0_0_30px_rgba(168,85,247,0.15)] bg-primary/5' : 'border-border'}`}>
+            {pkg.popular && <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold uppercase tracking-widest py-1.5 px-4 rounded-full" style={{ transform: "translateZ(30px) translateX(-50%)" }}>Professional</div>}
+            <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
+            <div className="text-4xl font-black mb-8">{formatPrice(pkg.basePrice)}</div>
+            <ul className="space-y-4 mb-8 flex-1">
+              {pkg.features.map((f: string, j: number) => (
+                <li key={j} className="flex items-center gap-3">
+                  <CheckCircle2 className="text-primary w-5 h-5 shrink-0" />
+                  <span className="text-sm font-medium">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <Button variant={pkg.popular ? "premium" : "outline"} className="w-full rounded-full">Select Plan</Button>
+          </div>
+        </TiltCard>
       ))}
     </div>
   );
 
   return (
     <div className="min-h-screen text-foreground pb-24 selection:bg-primary/20">
-      
+
       {/* 1. HERO & PRICING TOGGLE */}
       <section className="relative pt-40 pb-20 px-6 text-center">
         <div className="absolute inset-0 bg-primary/5 -z-10" />
-        
+
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-7xl font-black mb-6">
           Transparent <span className="text-primary">Pricing</span>
         </motion.h1>
@@ -147,9 +191,9 @@ export default function PricingPage() {
               ].map((row, idx) => (
                 <tr key={idx} className="border-t border-border/50">
                   <td className="p-6 font-medium">{row.name}</td>
-                  <td className="p-6 text-center">{row.s ? <CheckCircle2 className="mx-auto text-primary w-5 h-5"/> : <XCircle className="mx-auto text-muted-foreground/30 w-5 h-5"/>}</td>
-                  <td className="p-6 text-center">{row.p ? <CheckCircle2 className="mx-auto text-primary w-5 h-5"/> : <XCircle className="mx-auto text-muted-foreground/30 w-5 h-5"/>}</td>
-                  <td className="p-6 text-center">{row.e ? <CheckCircle2 className="mx-auto text-primary w-5 h-5"/> : <XCircle className="mx-auto text-muted-foreground/30 w-5 h-5"/>}</td>
+                  <td className="p-6 text-center">{row.s ? <CheckCircle2 className="mx-auto text-primary w-5 h-5" /> : <XCircle className="mx-auto text-muted-foreground/30 w-5 h-5" />}</td>
+                  <td className="p-6 text-center">{row.p ? <CheckCircle2 className="mx-auto text-primary w-5 h-5" /> : <XCircle className="mx-auto text-muted-foreground/30 w-5 h-5" />}</td>
+                  <td className="p-6 text-center">{row.e ? <CheckCircle2 className="mx-auto text-primary w-5 h-5" /> : <XCircle className="mx-auto text-muted-foreground/30 w-5 h-5" />}</td>
                 </tr>
               ))}
             </tbody>
@@ -174,36 +218,84 @@ export default function PricingPage() {
 
       {/* 9. CUSTOM QUOTE FORM */}
       <section className="py-24 max-w-3xl mx-auto px-6">
-        <div className="glass-card p-8 md:p-12 rounded-[40px] border border-primary/20 bg-primary/5">
+        <div className="glass-card p-8 md:p-12 rounded-[40px] border border-primary/20 bg-primary/5 relative overflow-hidden">
           <h2 className="text-3xl font-black mb-4 text-center">Need a Custom Quote?</h2>
           <p className="text-muted-foreground text-center mb-10">Tell us a bit about your project and we'll send over a tailored proposal.</p>
-          
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+
+          <AnimatePresence>
+            {isSuccess && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -20 }}
+                className="absolute top-0 left-0 w-full bg-emerald-500/10 border-b border-emerald-500/20 p-4 flex items-center justify-center gap-3 text-emerald-500 font-medium z-10 backdrop-blur-md"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                Quote request sent! We'll get back to you shortly.
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-semibold">Name</label>
-                <input type="text" className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="John Doe" />
+                <label className="text-sm font-semibold">Name *</label>
+                <input 
+                  type="text" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className={`w-full bg-background border ${errors.name ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors`} 
+                  placeholder="John Doe" 
+                />
+                {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold">Email</label>
-                <input type="email" className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="john@company.com" />
+                <label className="text-sm font-semibold">Email *</label>
+                <input 
+                  type="email" 
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className={`w-full bg-background border ${errors.email ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors`} 
+                  placeholder="john@company.com" 
+                />
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold">What do you need help with?</label>
-              <select className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary">
-                <option>Website & App Development</option>
-                <option>Branding & Design</option>
-                <option>Marketing & SEO</option>
-                <option>AI Automation</option>
-                <option>Full Digital Ecosystem</option>
+              <select 
+                value={formData.service}
+                onChange={(e) => setFormData({...formData, service: e.target.value})}
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary"
+              >
+                <option value="Website & App Development">Website & App Development</option>
+                <option value="Branding & Design">Branding & Design</option>
+                <option value="Marketing & SEO">Marketing & SEO</option>
+                <option value="AI Automation">AI Automation</option>
+                <option value="Full Digital Ecosystem">Full Digital Ecosystem</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Project Details</label>
-              <textarea rows={4} className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="Tell us about your goals..."></textarea>
+              <label className="text-sm font-semibold">Project Details *</label>
+              <textarea 
+                rows={4} 
+                value={formData.details}
+                onChange={(e) => setFormData({...formData, details: e.target.value})}
+                className={`w-full bg-background border ${errors.details ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors`} 
+                placeholder="Tell us about your goals..."
+              ></textarea>
+              {errors.details && <p className="text-xs text-red-500 mt-1">{errors.details}</p>}
             </div>
-            <Button variant="premium" className="w-full rounded-full h-14 text-lg">Request Custom Quote</Button>
+            <Button variant="premium" className="w-full rounded-full h-14 text-lg relative overflow-hidden" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Sending Request...
+                </motion.div>
+              ) : (
+                "Request Custom Quote"
+              )}
+            </Button>
           </form>
         </div>
       </section>

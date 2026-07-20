@@ -1,11 +1,55 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Phone, Mail, Clock, MessageCircle, Calendar, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { FadeInStagger, FadeInItem } from "@/components/ui/animations";
+
+import { useState } from "react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", message: "" });
+  const [errors, setErrors] = useState({ firstName: "", email: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    let newErrors = { firstName: "", email: "", message: "" };
+    let hasError = false;
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+      hasError = true;
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+      hasError = true;
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+      hasError = true;
+    }
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    if (!hasError) {
+      setIsSubmitting(true);
+      // Simulate API call
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        setFormData({ firstName: "", lastName: "", email: "", message: "" });
+        setTimeout(() => setIsSuccess(false), 5000);
+      }, 1500);
+    }
+  };
+
   return (
     <div className="min-h-screen text-foreground pb-24 selection:bg-primary/20">
       
@@ -27,30 +71,80 @@ export default function ContactPage() {
           <div className="space-y-16">
             
             {/* Contact Form */}
-            <div className="glass-card p-8 md:p-12 rounded-[40px] border border-border">
+            <div className="glass-card p-8 md:p-12 rounded-[40px] border border-border relative overflow-hidden">
               <h2 className="text-3xl font-black mb-2">Send us a message</h2>
               <p className="text-muted-foreground mb-8">We usually respond within 24 hours.</p>
               
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <AnimatePresence>
+                {isSuccess && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -20 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0, y: -20 }}
+                    className="absolute top-0 left-0 w-full bg-emerald-500/10 border-b border-emerald-500/20 p-4 flex items-center justify-center gap-3 text-emerald-500 font-medium z-10 backdrop-blur-md"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    Message sent successfully! We'll be in touch soon.
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">First Name</label>
-                    <input type="text" className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="John" />
+                    <label className="text-sm font-semibold">First Name *</label>
+                    <input 
+                      type="text" 
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      className={`w-full bg-background border ${errors.firstName ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors`} 
+                      placeholder="John" 
+                    />
+                    {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold">Last Name</label>
-                    <input type="text" className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="Doe" />
+                    <input 
+                      type="text" 
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors" 
+                      placeholder="Doe" 
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold">Email Address</label>
-                  <input type="email" className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="john@company.com" />
+                  <label className="text-sm font-semibold">Email Address *</label>
+                  <input 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className={`w-full bg-background border ${errors.email ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors`} 
+                    placeholder="john@company.com" 
+                  />
+                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold">Message</label>
-                  <textarea rows={5} className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="How can we help you?"></textarea>
+                  <label className="text-sm font-semibold">Message *</label>
+                  <textarea 
+                    rows={5} 
+                    value={formData.message}
+                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    className={`w-full bg-background border ${errors.message ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors`} 
+                    placeholder="How can we help you?"
+                  ></textarea>
+                  {errors.message && <p className="text-xs text-red-500 mt-1">{errors.message}</p>}
                 </div>
-                <Button variant="premium" className="w-full rounded-full h-14 text-lg">Send Message</Button>
+                <Button variant="premium" className="w-full rounded-full h-14 text-lg relative overflow-hidden" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Sending...
+                    </motion.div>
+                  ) : (
+                    "Send Message"
+                  )}
+                </Button>
               </form>
             </div>
 
@@ -68,43 +162,51 @@ export default function ContactPage() {
           <div className="space-y-8">
             
             {/* Quick Contact Grid */}
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="glass-card p-6 rounded-3xl border border-border flex flex-col items-center text-center hover:border-primary/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                  <Phone className="w-5 h-5" />
+            <FadeInStagger className="grid sm:grid-cols-2 gap-4">
+              <FadeInItem className="h-full">
+                <div className="glass-card h-full p-6 rounded-3xl border border-border flex flex-col items-center text-center hover:border-primary/50 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 shrink-0">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold mb-1">Phone</h4>
+                  <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
+                  <p className="text-sm text-muted-foreground">+1 (555) 987-6543</p>
                 </div>
-                <h4 className="font-bold mb-1">Phone</h4>
-                <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
-                <p className="text-sm text-muted-foreground">+1 (555) 987-6543</p>
-              </div>
+              </FadeInItem>
               
-              <div className="glass-card p-6 rounded-3xl border border-border flex flex-col items-center text-center hover:border-primary/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                  <Mail className="w-5 h-5" />
+              <FadeInItem className="h-full">
+                <div className="glass-card h-full p-6 rounded-3xl border border-border flex flex-col items-center text-center hover:border-primary/50 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 shrink-0">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold mb-1">Email</h4>
+                  <p className="text-sm text-muted-foreground">hello@growfy.com</p>
+                  <p className="text-sm text-muted-foreground">support@growfy.com</p>
                 </div>
-                <h4 className="font-bold mb-1">Email</h4>
-                <p className="text-sm text-muted-foreground">hello@growfy.com</p>
-                <p className="text-sm text-muted-foreground">support@growfy.com</p>
-              </div>
+              </FadeInItem>
 
-              <div className="glass-card p-6 rounded-3xl border border-[#25D366]/20 bg-[#25D366]/5 flex flex-col items-center text-center hover:border-[#25D366]/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center text-[#25D366] mb-4">
-                  <MessageCircle className="w-5 h-5" />
+              <FadeInItem className="h-full">
+                <div className="glass-card h-full p-6 rounded-3xl border border-[#25D366]/20 bg-[#25D366]/5 flex flex-col items-center text-center hover:border-[#25D366]/50 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center text-[#25D366] mb-4 shrink-0">
+                    <MessageCircle className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold mb-1 text-[#25D366]">WhatsApp</h4>
+                  <p className="text-sm text-muted-foreground">Chat with us instantly</p>
+                  <a href="#" className="text-xs font-bold text-[#25D366] mt-2 underline">Start Chat</a>
                 </div>
-                <h4 className="font-bold mb-1 text-[#25D366]">WhatsApp</h4>
-                <p className="text-sm text-muted-foreground">Chat with us instantly</p>
-                <a href="#" className="text-xs font-bold text-[#25D366] mt-2 underline">Start Chat</a>
-              </div>
+              </FadeInItem>
 
-              <div className="glass-card p-6 rounded-3xl border border-border flex flex-col items-center text-center hover:border-primary/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                  <Clock className="w-5 h-5" />
+              <FadeInItem className="h-full">
+                <div className="glass-card h-full p-6 rounded-3xl border border-border flex flex-col items-center text-center hover:border-primary/50 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 shrink-0">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold mb-1">Business Hours</h4>
+                  <p className="text-sm text-muted-foreground">Mon-Fri: 9am - 6pm EST</p>
+                  <p className="text-sm text-muted-foreground">Sat-Sun: Closed</p>
                 </div>
-                <h4 className="font-bold mb-1">Business Hours</h4>
-                <p className="text-sm text-muted-foreground">Mon-Fri: 9am - 6pm EST</p>
-                <p className="text-sm text-muted-foreground">Sat-Sun: Closed</p>
-              </div>
-            </div>
+              </FadeInItem>
+            </FadeInStagger>
 
             {/* Address & Map */}
             <div className="glass-card p-8 rounded-3xl border border-border">

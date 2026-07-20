@@ -20,10 +20,12 @@ interface MediaItem {
 
 const CATEGORIES = [
   "Homepage Reels",
+  "Homepage Posters",
   "About Gallery",
   "Design Slider",
   "Marketing Slider",
-  "Media Slider"
+  "Media Slider",
+  "Trusted Clients"
 ];
 
 export default function MediaCenter() {
@@ -79,6 +81,13 @@ export default function MediaCenter() {
       return;
     }
 
+    let fileTitle = file.name;
+    if (activeTab === "Trusted Clients") {
+      const clientName = window.prompt("Enter the company name for this logo:", file.name.split('.')[0]);
+      if (!clientName) return; // User cancelled
+      fileTitle = clientName;
+    }
+
     setUploading(true);
     setProgress(0);
 
@@ -101,7 +110,7 @@ export default function MediaCenter() {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           await addDoc(collection(db, "gallery"), {
             url: downloadURL,
-            title: file.name,
+            title: fileTitle,
             category: activeTab,
             type: isReel ? 'video' : 'image',
             storagePath: uploadTask.snapshot.ref.fullPath,
