@@ -6,6 +6,7 @@ import ParticleBackground from "@/components/layout/ParticleBackground";
 import { Navbar } from "@/components/ui/navbar";
 import { Footer } from "@/components/ui/footer";
 import { DashboardProvider } from "@/context/DashboardContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,9 +63,11 @@ export default function RootLayout({
         <DynamicCursor />
         <Navbar />
         <main className="flex-1 mt-20">
-          <DashboardProvider>
-            {children}
-          </DashboardProvider>
+          <AuthProvider>
+            <DashboardProvider>
+              {children}
+            </DashboardProvider>
+          </AuthProvider>
         </main>
         <Footer />
       </body>

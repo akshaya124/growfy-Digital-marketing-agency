@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, Plus, Mail, Phone, MapPin, Calendar, 
   Briefcase, Activity, CheckCircle2, MessageSquare, 
-  Edit, Trash2, Loader2, Save, X
+  Edit, Trash2, Loader2, Save, X, UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db, storage } from "@/lib/firebase/config";
 import { collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import { useAuth } from "@/context/AuthContext";
 
 type TeamMember = {
   id: string;
@@ -25,24 +26,27 @@ type TeamMember = {
   initials: string;
   avatarUrl?: string;
   storagePath?: string;
+  hasLoginAccess?: boolean;
+  uid?: string;
   performance: number;
   recentActivity: any[];
 };
 
 export default function TeamManagement() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Add State
   const [isAdding, setIsAdding] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Access State
+  const [grantingAccess, setGrantingAccess] = useState(false);
 
   // Form State
-  const [formData, setFormData] = useState({ name: "", role: "", department: "", email: "", location: "" });
+  const [formData, setFormData] = useState({ name: "", role: "", department: "", email: "", location: "", avatarUrl: "" });
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -58,6 +62,12 @@ export default function TeamManagement() {
         fetchedTeam.push({ id: doc.id, ...doc.data() } as TeamMember);
       });
       setTeam(fetchedTeam);
+      
+      // Update selected member if it was already selected
+      if (selectedMember) {
+        const updated = fetchedTeam.find(c => c.id === selectedMember.id);
+        if (updated) setSelectedMember(updated);
+      }
     } catch (error) {
       console.error("Error fetching team:", error);
     } finally {
@@ -82,60 +92,122 @@ export default function TeamManagement() {
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.role || !file) {
-      alert("Please provide at least a name, role, and a photo.");
+    if (!formData.name || !formData.role) {
+      alert("Please provide at least a name and role.");
       return;
     }
 
     setUploading(true);
-    setProgress(0);
+    let finalAvatarUrl = formData.avatarUrl;
 
-    const storageRef = ref(storage, `team/${Date.now()}_${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    if (file) {
+      try {
+        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "xgrbbkob";
+        const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cmo55jxq";
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100),
-      (error) => {
-        console.error("Upload error:", error);
-        alert("Error uploading image");
-        setUploading(false);
-      },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          const initials = formData.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
-          const colors = ["from-purple-500 to-indigo-500", "from-blue-500 to-cyan-500", "from-emerald-500 to-teal-500", "from-orange-500 to-red-500", "from-pink-500 to-rose-500"];
-          const randColor = colors[Math.floor(Math.random() * colors.length)];
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", uploadPreset);
 
-          await addDoc(collection(db, "team"), {
-            ...formData,
-            avatarUrl: downloadURL,
-            storagePath: uploadTask.snapshot.ref.fullPath,
-            createdAt: serverTimestamp(),
-            status: "Active",
-            avatarColor: randColor,
-            initials,
-            performance: 100,
-            recentActivity: []
-          });
-          setUploading(false);
-          setIsAdding(false);
-          setFormData({ name: "", role: "", department: "", email: "", location: "" });
-          setFile(null);
-          fetchTeam(); 
-        } catch (err) {
-          console.error("Error adding doc:", err);
-          setUploading(false);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: data
+        });
+        
+        const fileData = await res.json();
+        if (fileData.secure_url) {
+          finalAvatarUrl = fileData.secure_url;
+        } else {
+          console.error("Cloudinary error response:", fileData);
+          throw new Error(fileData.error?.message || "Upload failed");
         }
+      } catch (err: any) {
+        console.error("Error uploading to Cloudinary:", err);
+        alert(`Failed to upload image: ${err.message || err}. Saving member without image.`);
+        setUploading(false);
+        return;
       }
-    );
+    }
+
+    try {
+      const initials = formData.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+      const colors = ["from-purple-500 to-indigo-500", "from-blue-500 to-cyan-500", "from-emerald-500 to-teal-500", "from-orange-500 to-red-500", "from-pink-500 to-rose-500"];
+      const randColor = colors[Math.floor(Math.random() * colors.length)];
+
+      await addDoc(collection(db, "team"), {
+        name: formData.name,
+        role: formData.role,
+        department: formData.department,
+        email: formData.email,
+        location: formData.location,
+        avatarUrl: finalAvatarUrl,
+        createdAt: serverTimestamp(),
+        avatarColor: randColor,
+        initials,
+        hasLoginAccess: false,
+        performance: 100,
+        recentActivity: []
+      });
+      setUploading(false);
+      setIsAdding(false);
+      setFormData({ name: "", role: "", department: "", email: "", location: "", avatarUrl: "" });
+      setFile(null);
+      fetchTeam(); 
+    } catch (err) {
+      console.error("Error adding doc:", err);
+      setUploading(false);
+      alert("Error saving member");
+    }
   };
 
   const filteredTeam = team.filter(member => 
     member.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     member.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleGrantAccess = async () => {
+    if (!selectedMember?.email) {
+      alert("This member needs an email address to grant access.");
+      return;
+    }
+
+    const password = prompt(`Enter a login password for ${selectedMember.name} (minimum 6 characters):`);
+    if (password === null) return; // Admin cancelled
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+    
+    setGrantingAccess(true);
+    try {
+      const response = await fetch('/api/admin/grant-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: selectedMember.email,
+          role: 'TEAM_MEMBER',
+          adminEmail: user?.email,
+          collectionName: 'team',
+          docId: selectedMember.id,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to grant access');
+      }
+      
+      alert(`Access granted successfully to ${selectedMember.name} with your specified password!`);
+      fetchTeam(); // Refresh to update the UI
+    } catch (error: any) {
+      console.error("Error granting access:", error);
+      alert(error.message);
+    } finally {
+      setGrantingAccess(false);
+    }
+  };
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col xl:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -204,9 +276,27 @@ export default function TeamManagement() {
                 </div>
                 
                 <div className="space-y-6 max-w-xl">
-                  <div>
-                    <label className="text-sm font-bold text-muted-foreground block mb-2">Profile Photo *</label>
-                    <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} className="w-full text-sm" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-bold text-muted-foreground block mb-2">Upload Profile Photo</label>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => setFile(e.target.files?.[0] || null)} 
+                        className="w-full text-sm bg-muted/50 border border-border rounded-lg px-4 py-2" 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-bold text-muted-foreground block mb-2">Or Paste Photo URL</label>
+                      <input 
+                        type="text" 
+                        value={formData.avatarUrl} 
+                        onChange={e => setFormData({...formData, avatarUrl: e.target.value})} 
+                        className="w-full bg-muted/50 border border-border rounded-lg px-4 py-2" 
+                        placeholder="e.g. https://images.unsplash.com/..."
+                        disabled={!!file}
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -234,7 +324,7 @@ export default function TeamManagement() {
                   </div>
                   
                   <Button variant="premium" className="w-full mt-4 h-12" onClick={handleSave} disabled={uploading}>
-                    {uploading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Uploading {Math.round(progress)}%</> : <><Save className="w-4 h-4 mr-2"/> Save Member</>}
+                    {uploading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Saving Member...</> : <><Save className="w-4 h-4 mr-2"/> Save Member</>}
                   </Button>
                 </div>
              </motion.div>
@@ -261,6 +351,23 @@ export default function TeamManagement() {
                       <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4"/> {selectedMember.location || "N/A"}</span>
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-border/50 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-muted-foreground mb-1">System Access</h4>
+                    <p className="text-xs text-muted-foreground">Give this team member access to log into the admin portal.</p>
+                  </div>
+                  {selectedMember.hasLoginAccess ? (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg font-bold text-sm">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Login Access Granted
+                    </div>
+                  ) : (
+                    <Button onClick={handleGrantAccess} disabled={grantingAccess || !selectedMember.email} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white transition-all">
+                      {grantingAccess ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Granting Access...</> : <><UserCheck className="w-4 h-4 mr-2"/> Grant Login Access</>}
+                    </Button>
+                  )}
                 </div>
               </div>
             </motion.div>

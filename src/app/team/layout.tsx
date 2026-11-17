@@ -9,6 +9,7 @@ import {
   Video, MessageSquare, UploadCloud, TrendingUp, Clock, 
   User, Menu, X, LogOut, Bell
 } from "lucide-react";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/team", icon: LayoutDashboard },
@@ -28,7 +29,8 @@ export default function TeamLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-background flex -mt-20">
+    <ProtectedRoute allowedRoles={["TEAM_MEMBER", "ADMIN"]}>
+      <div className="min-h-screen bg-background flex -mt-20">
       
       {/* SIDEBAR (Desktop) */}
       <aside className="hidden lg:flex w-72 flex-col fixed inset-y-0 left-0 bg-background/50 backdrop-blur-xl border-r border-border z-40">
@@ -134,7 +136,8 @@ export default function TeamLayout({ children }: { children: React.ReactNode }) 
           {children}
         </div>
       </main>
-
+ 
     </div>
+    </ProtectedRoute>
   );
 }

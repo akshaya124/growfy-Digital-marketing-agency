@@ -67,20 +67,20 @@ export function TrustedBy() {
             }}
           >
             {clients.map((client, index) => (
-              <div key={index} className="flex flex-col items-center justify-center space-y-4">
+              <div key={index} className="flex items-center justify-center space-x-4 bg-background/20 px-5 py-2.5 rounded-xl border border-border/40 backdrop-blur-sm hover:bg-background/40 transition-colors duration-300">
                 {client.url ? (
                   <img 
                     src={client.url} 
                     alt={client.name} 
-                    className="w-16 h-16 md:w-24 md:h-24 object-contain hover:scale-110 transition-transform duration-300" 
+                    className="w-10 h-10 md:w-12 md:h-12 object-contain hover:scale-110 transition-transform duration-300" 
                   />
                 ) : (
-                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-background/50">
-                    <span className="text-[10px] text-muted-foreground/50 uppercase font-bold">Logo</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-dashed border-muted-foreground/30 flex items-center justify-center bg-background/50">
+                    <span className="text-[8px] text-muted-foreground/50 uppercase font-bold">Logo</span>
                   </div>
                 )}
                 {client.name !== "Add Client" && (
-                  <div className="text-xl md:text-2xl font-black text-foreground/40 uppercase">
+                  <div className="text-base md:text-lg font-bold text-foreground/80 tracking-wide">
                     {client.name}
                   </div>
                 )}
@@ -88,20 +88,20 @@ export function TrustedBy() {
             ))}
             {/* Duplicate for seamless loop */}
             {clients.map((client, index) => (
-              <div key={`dup-${index}`} className="flex flex-col items-center justify-center space-y-4">
+              <div key={`dup-${index}`} className="flex items-center justify-center space-x-4 bg-background/20 px-5 py-2.5 rounded-xl border border-border/40 backdrop-blur-sm hover:bg-background/40 transition-colors duration-300">
                 {client.url ? (
                   <img 
                     src={client.url} 
                     alt={client.name} 
-                    className="w-16 h-16 md:w-24 md:h-24 object-contain hover:scale-110 transition-transform duration-300" 
+                    className="w-10 h-10 md:w-12 md:h-12 object-contain hover:scale-110 transition-transform duration-300" 
                   />
                 ) : (
-                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-background/50">
-                    <span className="text-[10px] text-muted-foreground/50 uppercase font-bold">Logo</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-dashed border-muted-foreground/30 flex items-center justify-center bg-background/50">
+                    <span className="text-[8px] text-muted-foreground/50 uppercase font-bold">Logo</span>
                   </div>
                 )}
                 {client.name !== "Add Client" && (
-                  <div className="text-xl md:text-2xl font-black text-foreground/40 uppercase">
+                  <div className="text-base md:text-lg font-bold text-foreground/80 tracking-wide">
                     {client.name}
                   </div>
                 )}

@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 const milestones = [
   { year: "2020", title: "The Inception", desc: "Growfy was founded with a vision to redefine digital marketing." },
   { year: "2020", title: "First Client Onboarded", desc: "Partnered with a neighborhood café to modernize its marketing through digital branding, online presence, and customer engagement—proving the impact of digital-first growth." },
-  { year: "2021", title: "Agency Growth", desc: "Expanded the team to 50+ creatives and engineers." },
-  { year: "2022", title: "100+ Projects Delivered", desc: "Crossed a major milestone in delivering high-converting ecosystems." },
-  { year: "2023", title: "Global Expansion", desc: "Opened offices in London and Dubai. International client base." },
-  { year: "2024", title: "AI Integration", desc: "Pioneered AI-driven marketing and automation services." },
-  { year: "Future", title: "Beyond Limits", desc: "Building the next generation of spatial computing interfaces." }
+  { year: "2022", title: "Agency Growth", desc: "Expanded the team to 20+ creatives and engineers." },
+  { year: "2023", title: "500+ Projects Delivered", desc: "Crossed a major milestone in delivering high-converting ecosystems." },
+  { year: "2024", title: "Global Expansion", desc: "We expanded our services to Dubai and sharjah and we set our first International client base." },
+  { year: "2025", title: "AI Integration", desc: "Pioneered AI-driven marketing and automation services." },
+  { year: "Future", title: "Beyond Limits", desc: "Expanding businesses beyond borders with AI-driven digital marketing, intelligent automation, and innovative strategies that create lasting global impact." }
 ];
 
 const values = [
@@ -272,19 +272,19 @@ export function AboutClient({ initialTeam = [], initialGallery = [] }: { initial
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 aspect-[16/9] rounded-3xl overflow-hidden relative group">
             <img src={initialGallery[0]?.url || "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"} alt="Main Office" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Silicon Valley HQ</div>
+            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Our Creative Ecosystem</div>
           </div>
           <div className="aspect-square md:aspect-auto rounded-3xl overflow-hidden relative group">
             <img src={initialGallery[1]?.url || "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=600&auto=format&fit=crop"} alt="Team Collaboration" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Brainstorming</div>
+            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Where Vision Meets Execution</div>
           </div>
           <div className="aspect-square md:aspect-auto rounded-3xl overflow-hidden relative group">
             <img src={initialGallery[2]?.url || "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=600&auto=format&fit=crop"} alt="Lounge" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Relaxation Zone</div>
+            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Beyond the Workplace</div>
           </div>
           <div className="md:col-span-2 aspect-[16/9] rounded-3xl overflow-hidden relative group">
             <img src={initialGallery[3]?.url || "https://images.unsplash.com/photo-1515169067868-5387ec356754?q=80&w=1200&auto=format&fit=crop"} alt="Company Event" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">Annual Retreat</div>
+            <div className="absolute bottom-6 left-6 bg-background/90 backdrop-blur-md px-4 py-2 rounded-lg font-semibold">The Minds Behind the Magic</div>
           </div>
         </div>
       </section>

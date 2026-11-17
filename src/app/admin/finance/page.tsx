@@ -109,7 +109,7 @@ export default function FinancePage() {
               <Tooltip 
                 contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
                 itemStyle={{ color: '#fff' }}
-                formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
+                formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, '']}
               />
               <Bar dataKey="revenue" name="Revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
               <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />

@@ -8,6 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/context/DashboardContext";
 import Link from "next/link";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import TeamManagementWidget from "@/components/TeamManagementWidget";
+
 
 export default function DashboardOverview() {
   const { events } = useDashboard();
@@ -18,7 +21,8 @@ export default function DashboardOverview() {
     .slice(0, 3); // Show max 3 on overview
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <ProtectedRoute allowedRoles={["CLIENT", "ADMIN"]}>
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* 1. WELCOME & QUICK ACTIONS */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -111,6 +115,8 @@ export default function DashboardOverview() {
         {/* 4. SIDEBAR WIDGETS (Right - 1 Col) */}
         <div className="space-y-8">
           
+          <TeamManagementWidget />
+          
           {/* Upcoming Events / Content Calendar Widget */}
           <div className="glass-card rounded-3xl border border-border bg-background overflow-hidden flex flex-col h-[400px]">
              <div className="p-6 border-b border-border flex justify-between items-center shrink-0">
@@ -167,7 +173,8 @@ export default function DashboardOverview() {
 
         </div>
 
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
